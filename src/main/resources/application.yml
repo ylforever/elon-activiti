@@ -1,0 +1,12 @@
+server:
+ servlet:
+  context-path: /activiti
+ port: 9527
+
+spring:
+ datasource:
+  activiti:
+   jdbcUrl: jdbc:postgresql://127.0.0.1:5432/activiti
+   username: postgres
+   password: postgres
+   driver-class-name: org.postgresql.Driver

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="requestleave" name="requestleave" isExecutable="true">
+    <documentation>请假流程</documentation>
+    <startEvent id="start_id" name="开始"></startEvent>
+    <userTask id="apply_id" name="提交请假申请" activiti:assignee="${apply_id_assignee}">
+      <extensionElements>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <userTask id="approval_id" name="审批申请" activiti:assignee="${approval_id_assignee}">
+      <extensionElements>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <endEvent id="end_id" name="结束"></endEvent>
+    <exclusiveGateway id="gate_way_id" name="评审通过"></exclusiveGateway>
+    <sequenceFlow id="apply_flow_id" sourceRef="start_id" targetRef="apply_id"></sequenceFlow>
+    <sequenceFlow id="reject_flow_id" name="否" sourceRef="gate_way_id" targetRef="apply_id">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approval_id_result==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="approve_flow_id" name="是" sourceRef="gate_way_id" targetRef="end_id">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approval_id_result==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="approval_flow_id" sourceRef="apply_id" targetRef="approval_id"></sequenceFlow>
+    <sequenceFlow id="approval_to_gateway_flow_id" sourceRef="approval_id" targetRef="gate_way_id"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_requestleave">
+    <bpmndi:BPMNPlane bpmnElement="requestleave" id="BPMNPlane_requestleave">
+      <bpmndi:BPMNShape bpmnElement="start_id" id="BPMNShape_start_id">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="85.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="apply_id" id="BPMNShape_apply_id">
+        <omgdc:Bounds height="80.0" width="100.0" x="255.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approval_id" id="BPMNShape_approval_id">
+        <omgdc:Bounds height="80.0" width="100.0" x="495.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end_id" id="BPMNShape_end_id">
+        <omgdc:Bounds height="28.0" width="28.0" x="720.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="gate_way_id" id="BPMNShape_gate_way_id">
+        <omgdc:Bounds height="40.0" width="40.0" x="525.0" y="194.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="approval_to_gateway_flow_id" id="BPMNEdge_approval_to_gateway_flow_id">
+        <omgdi:waypoint x="545.0" y="140.0"></omgdi:waypoint>
+        <omgdi:waypoint x="545.0" y="194.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="apply_flow_id" id="BPMNEdge_apply_flow_id">
+        <omgdi:waypoint x="130.0" y="100.0"></omgdi:waypoint>
+        <omgdi:waypoint x="255.0" y="100.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_flow_id" id="BPMNEdge_approval_flow_id">
+        <omgdi:waypoint x="355.0" y="100.0"></omgdi:waypoint>
+        <omgdi:waypoint x="495.0" y="100.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="reject_flow_id" id="BPMNEdge_reject_flow_id">
+        <omgdi:waypoint x="525.5" y="214.5"></omgdi:waypoint>
+        <omgdi:waypoint x="305.0" y="214.5"></omgdi:waypoint>
+        <omgdi:waypoint x="305.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approve_flow_id" id="BPMNEdge_approve_flow_id">
+        <omgdi:waypoint x="564.5505319148937" y="214.4494680851064"></omgdi:waypoint>
+        <omgdi:waypoint x="720.0000492507726" y="214.03713514787594"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
