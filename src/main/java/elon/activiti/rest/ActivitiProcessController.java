@@ -80,7 +80,7 @@ public class ActivitiProcessController {
         return ResponseModel.success("success");
     }
 
-    public void getProcessDefineImge(HttpServletResponse response){
+    public void getProcessDefineImge(HttpServletResponse response,  String processInstanceId){
 
     }
 }
