@@ -1,9 +1,11 @@
 package elon.activiti.service;
 
 import elon.activiti.model.LeaveTask;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -11,6 +13,7 @@ import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,9 @@ public class ActivitiProcessService {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Autowired
+    private HistoryService historyService;
 
     /**
      * 部署流程。
@@ -83,6 +89,29 @@ public class ActivitiProcessService {
     }
 
     /**
+     * 查询已处理任务列表。
+     *
+     * @param assignee 用户
+     * @return 已处理任务列表
+     */
+    public List<LeaveTask> queryDoneTasks(String assignee) {
+        List<HistoricTaskInstance> taskList  = historyService.createHistoricTaskInstanceQuery()
+                .taskAssignee(assignee)
+                .finished()
+                .list();
+
+        List<LeaveTask> leaveTasks = new ArrayList<>();
+        for (HistoricTaskInstance task : taskList) {
+            LeaveTask leaveTask = new LeaveTask();
+            leaveTask.setTaskId(task.getId());
+            leaveTask.setName(task.getName());
+            leaveTask.setProcessDefinitionId(task.getProcessDefinitionId());
+            leaveTasks.add(leaveTask);
+        }
+        return leaveTasks;
+    }
+
+    /**
      * 提交任务。
      *
      * @param taskId 任务ID
@@ -90,5 +119,28 @@ public class ActivitiProcessService {
      */
     public void completeTask(String taskId, Map<String, Object> paramMap) {
         taskService.complete(taskId, paramMap);
+    }
+
+    /**
+     * 获取流程定义资源。
+     *
+     * @param processDefineId 流程定义ID
+     * @param type 1-获取xml, 2-获取图片
+     * @return 文件流
+     */
+    public InputStream getProcessDefineResource(String processDefineId, int type) {
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefineId).singleResult();
+
+        String resourceName = "";
+        if (type == 1) {
+            resourceName = processDefinition.getResourceName();
+        } else if (type == 2) {
+            resourceName = processDefinition.getDiagramResourceName();
+        } else {
+            return null;
+        }
+
+        return repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), resourceName);
     }
 }

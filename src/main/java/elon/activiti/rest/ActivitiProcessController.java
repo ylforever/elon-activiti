@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +37,7 @@ public class ActivitiProcessController {
     @ApiOperation(value = "部署流程")
     public ResponseModel<String> deploy(@ApiParam(value = "xml定义文件路径", defaultValue = "leave.bpmn20.xml")
                                         @RequestHeader("bpmnXmlFile") String bpmnXmlFile,
-                                        @ApiParam(value = "bpmn图片文件路径", defaultValue = "leave.bpmn20.png")
+                                        @ApiParam(value = "bpmn图片文件路径", defaultValue = "leave.png")
                                         @RequestHeader("bmpnImageFile") String bmpnImageFile){
         String id = activitiProcessService.deploy(bpmnXmlFile, bmpnImageFile);
         return ResponseModel.success(id);
@@ -59,12 +62,22 @@ public class ActivitiProcessController {
         return ResponseModel.success(processInstanceId);
     }
 
-    @PostMapping("/v1/query-todo-tasks")
+    @GetMapping("/v1/query-todo-tasks")
     @ApiOperation(value = "查询待处理任务列表")
     public ResponseModel<List<LeaveTask>> queryToDoTasks(@ApiParam(value = "当前处理人", defaultValue = "zhangsan")
                                               @RequestParam("assignee") String assignee) {
         return ResponseModel.success(activitiProcessService.queryToDoTasks(assignee));
     }
+
+
+    @GetMapping("/v1/query-done-tasks")
+    @ApiOperation(value = "查询已处理任务列表")
+    public ResponseModel<List<LeaveTask>> queryDoneTasks(@ApiParam(value = "当前处理人", defaultValue = "zhangsan")
+                                                         @RequestParam("assignee") String assignee) {
+        return ResponseModel.success(activitiProcessService.queryDoneTasks(assignee));
+    }
+
+
 
     /**
      * 提交任务。
@@ -80,7 +93,59 @@ public class ActivitiProcessController {
         return ResponseModel.success("success");
     }
 
-    public void getProcessDefineImge(HttpServletResponse response,  String processInstanceId){
+    /**
+     * 获取流程定义图片。
+     *
+     * @param response http请求响应
+     * @param processDefineId 流程定义ID
+     */
+    @GetMapping("/v1/process-image")
+    @ApiOperation(value = "获取流程定义图片")
+    public void getProcessDefineImge(HttpServletResponse response,
+                                     @ApiParam(value = "流程定义ID")
+                                     @RequestParam("processDefineId") String processDefineId){
+        InputStream inputStream = activitiProcessService.getProcessDefineResource(processDefineId, 2);
 
+        byte[] bytes = new byte[1024];
+        response.setContentType("image/png");
+
+        try {
+            OutputStream outputStream = response.getOutputStream();
+            while (inputStream.read(bytes) != -1) {
+                outputStream.write(bytes);
+            }
+
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取流程定义XML。
+     *
+     * @param response http请求响应
+     * @param processDefineId 流程定义ID
+     */
+    @GetMapping("/v1/process-xml")
+    @ApiOperation(value = "获取流程定义XML")
+    public void getProcessDefineXML(HttpServletResponse response,
+                                     @ApiParam(value = "流程定义ID")
+                                     @RequestParam("processDefineId") String processDefineId){
+        InputStream inputStream = activitiProcessService.getProcessDefineResource(processDefineId, 1);
+
+        byte[] bytes = new byte[1024];
+        response.setContentType("text/xml");
+
+        try {
+            OutputStream outputStream = response.getOutputStream();
+            while (inputStream.read(bytes) != -1) {
+                outputStream.write(bytes);
+            }
+
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
