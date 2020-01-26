@@ -4,10 +4,19 @@ import elon.activiti.model.LeaveTask;
 import elon.activiti.model.ResponseModel;
 import elon.activiti.service.ActivitiProcessService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -35,10 +44,12 @@ public class ActivitiProcessController {
      */
     @PostMapping("/deploy")
     @ApiOperation(value = "部署流程")
-    public ResponseModel<String> deploy(@ApiParam(value = "xml定义文件路径", defaultValue = "leave.bpmn20.xml")
-                                        @RequestHeader("bpmnXmlFile") String bpmnXmlFile,
-                                        @ApiParam(value = "bpmn图片文件路径", defaultValue = "leave.png")
-                                        @RequestHeader("bmpnImageFile") String bmpnImageFile){
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "bpmnXmlFile", value = "xml定义文件路径", defaultValue = "leave.bpmn20.xml"),
+            @ApiImplicitParam(name = "bmpnImageFile", value = "bpmn图片文件路径", defaultValue = "leave.png")
+    })
+    public ResponseModel<String> deploy(@RequestHeader("bpmnXmlFile") String bpmnXmlFile,
+                                        @RequestHeader("bmpnImageFile") String bmpnImageFile) {
         String id = activitiProcessService.deploy(bpmnXmlFile, bmpnImageFile);
         return ResponseModel.success(id);
     }
@@ -51,11 +62,13 @@ public class ActivitiProcessController {
      */
     @PostMapping("/v1/create-process-instance")
     @ApiOperation(value = "创建流程实例")
-    public ResponseModel<String> createProcessInstance(@ApiParam(value = "流程定义ID", defaultValue = "requestleave:9:22505")
-                                                       @RequestHeader("processDefinitionId") String processDefinitionId,
-                                                       @ApiParam(value = "申请人", defaultValue = "zhangsan")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", defaultValue = "requestleave:9:22505"),
+            @ApiImplicitParam(name = "applyAssignee", value = "申请人", defaultValue = "zhangsan"),
+            @ApiImplicitParam(name = "approvalAssignee", value = "审批人", defaultValue = "lisi")
+    })
+    public ResponseModel<String> createProcessInstance(@RequestHeader("processDefinitionId") String processDefinitionId,
                                                        @RequestHeader("applyAssignee") String applyAssignee,
-                                                       @ApiParam(value = "审批人", defaultValue = "lisi")
                                                        @RequestHeader("approvalAssignee") String approvalAssignee) {
         String processInstanceId =  activitiProcessService.createProcessInstance(processDefinitionId,
                 applyAssignee, approvalAssignee);
@@ -76,8 +89,6 @@ public class ActivitiProcessController {
                                                          @RequestParam("assignee") String assignee) {
         return ResponseModel.success(activitiProcessService.queryDoneTasks(assignee));
     }
-
-
 
     /**
      * 提交任务。
@@ -147,5 +158,20 @@ public class ActivitiProcessController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 转派任务责任人
+     * @param taskId 任务ID
+     * @param userId 转派人的账号ID
+     */
+    @PostMapping("/transfer-task/{taskId}")
+    @ApiOperation(value = "转派任务责任人")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", value = "任务ID"),
+            @ApiImplicitParam(name = "userId", value = "转派人的账号ID", defaultValue = "wang wu")
+    })
+    public void transferAssignee(@PathVariable("taskId") String taskId, @RequestBody String userId) {
+        activitiProcessService.transferAssignee(taskId, userId);
     }
 }

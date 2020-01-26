@@ -89,6 +89,15 @@ public class ActivitiProcessService {
     }
 
     /**
+     * 转派责任人
+     * @param taskId 任务ID
+     * @param userId 转派的人ID
+     */
+    public void transferAssignee(String taskId, String userId) {
+        taskService.setAssignee(taskId, userId);
+    }
+
+    /**
      * 查询已处理任务列表。
      *
      * @param assignee 用户

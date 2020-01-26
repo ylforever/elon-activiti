@@ -36,5 +36,4 @@ public class ActivitiDataSource {
             return null;
         }
     }
-
 }
