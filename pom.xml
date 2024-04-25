@@ -106,18 +106,24 @@
     <!-- Add Spring repositories -->
     <!-- (you don't need this if you are using a .RELEASE version) -->
     <repositories>
+        <!--        <repository>-->
+        <!--            <id>aliyun-repos</id>-->
+        <!--            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>-->
+        <!--            <snapshots>-->
+        <!--            <enabled>true</enabled>-->
+        <!--            </snapshots>-->
+        <!--        </repository>-->
         <repository>
-            <id>aliyun-repos</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>aliyun-plugin</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <!--            <id>aliyun-plugin</id>-->
+            <!--            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>-->
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
